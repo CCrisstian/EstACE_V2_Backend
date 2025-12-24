@@ -9,5 +9,5 @@ public class UsuarioResponse {
     private String nombre;
     private String apellido;
     private String tipo;
-    // NO incluimos el password
+    private String token;
 }
