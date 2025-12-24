@@ -37,14 +37,19 @@ public class UsuarioService {
         return null;
     }
 
+    public Usuario buscarPorLegajo(Integer legajo) {
+        return usuarioRepository.findByUsuLegajo(legajo)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con legajo: " + legajo));
+    }
+
     // Método para registrar un Usuario
     @Transactional
     public Usuario registrarUsuario(Usuario usuarioNuevo) {
 
-        // 1. Obtenemos la contraseña en texto plano (ej: "hola123")
+        // 1. Obtenemos la contraseña en texto plano ("hola123")
         String passSinCifrar = usuarioNuevo.getUsuPass();
 
-        // 2. La encriptamos (ej: se convierte en "$2a$10$R9h/cIPz...")
+        // 2. La encriptamos (se convierte en "$2a$10$R9h/cIPz...")
         String passCifrada = passwordEncoder.encode(passSinCifrar);
 
         // 3. Reemplazamos la contraseña original por la cifrada en el objeto
