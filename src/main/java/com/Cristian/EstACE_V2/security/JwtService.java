@@ -70,7 +70,7 @@ public class JwtService {
     }
 
     private Key getSignInKey() {
-        // Usamos la variable de instancia 'secretKey' en lugar de la constante estática
+        // Usamos la variable de instancia 'secretKey'
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
