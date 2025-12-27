@@ -49,7 +49,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // Permitir tu Frontend Local Y (a futuro) tu Frontend en Vercel
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "https://estace-frontend.vercel.app"));
+        configuration.setAllowedOrigins(List.of("http://localhost:3000", "https://est-ace-v20.vercel.app/"));
 
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
