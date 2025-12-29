@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.Cristian.EstACE_V2.dtos.UsuarioUpdateRequest;
 
 import java.util.Optional;
 
@@ -42,20 +43,52 @@ public class UsuarioService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado con legajo: " + legajo));
     }
 
-    // Método para registrar un Usuario
     @Transactional
-    public Usuario registrarUsuario(Usuario usuarioNuevo) {
+    public Usuario actualizarPerfil(Integer legajo, UsuarioUpdateRequest request) {
+        // 1. Buscar al usuario en la BD
+        Usuario usuario = buscarPorLegajo(legajo);
 
-        // 1. Obtenemos la contraseña en texto plano ("hola123")
-        String passSinCifrar = usuarioNuevo.getUsuPass();
+        // --- VALIDACIONES DE NEGOCIO ---
 
-        // 2. La encriptamos (se convierte en "$2a$10$R9h/cIPz...")
-        String passCifrada = passwordEncoder.encode(passSinCifrar);
+        // 2. Validar que el DNI no esté vacío y sea numérico (básico)
+        if (request.getDni() == null || request.getDni() <= 0) {
+            throw new RuntimeException("El DNI es inválido");
+        }
 
-        // 3. Reemplazamos la contraseña original por la cifrada en el objeto
-        usuarioNuevo.setUsuPass(passCifrada);
+        if (request.getNombre() == null
+                || request.getNombre().trim().isEmpty()
+                || request.getNombre().matches("\\d+")) {
+            throw new RuntimeException("El Nombre es inválido");
+        }
 
-        // 4. Guardamos en la BD. Supabase solo verá el hash, nunca la real.
-        return usuarioRepository.save(usuarioNuevo);
+        if (request.getApellido() == null
+                || request.getApellido().trim().isEmpty()
+                || request.getApellido().matches("\\d+")) {
+            throw new RuntimeException("El Apellido es inválido");
+        }
+
+        // 3. Validar UNICIDAD del DNI en BD
+        boolean dniExiste = usuarioRepository.existsByUsuDniAndUsuLegajoNot(request.getDni(), legajo);
+        if (dniExiste) {
+            throw new RuntimeException("El DNI ingresado ya pertenece a otro usuario.");
+        }
+
+        // --- ACTUALIZACIÓN DE DATOS COMUNES ---
+        usuario.setUsuDni(request.getDni());
+        usuario.setUsuNom(request.getNombre());
+        usuario.setUsuAp(request.getApellido());
+
+        // --- ACTUALIZACIÓN DE CONTRASEÑA (Solo Dueño) ---
+        // Verificamos si envió un password nuevo Y si es Dueño
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            if ("Dueño".equalsIgnoreCase(usuario.getUsuTipo())) {
+                String passCifrada = passwordEncoder.encode(request.getPassword());
+                usuario.setUsuPass(passCifrada);
+            } else {
+                throw new RuntimeException("Solo los Dueños pueden cambiar la contraseña aquí.");
+            }
+        }
+
+        return usuarioRepository.save(usuario);
     }
 }
