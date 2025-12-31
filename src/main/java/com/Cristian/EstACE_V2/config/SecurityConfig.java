@@ -32,7 +32,9 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
+                        // Endpoints públicos
                         .requestMatchers("/api/usuarios/login", "/api/usuarios/registrar").permitAll()
+                        // El resto requiere autenticación
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
@@ -48,11 +50,18 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Permitir tu Frontend Local Y (a futuro) tu Frontend en Vercel
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "https://est-ace-v20.vercel.app/"));
+        // 🔥 CAMBIO IMPORTANTE: Permitir TODO (*) usando patrones
+        // Esto soluciona los problemas de "localhost" vs "127.0.0.1" y puertos.
+        configuration.setAllowedOriginPatterns(List.of("*"));
 
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        // Métodos permitidos (agregamos PATCH y OPTIONS por si acaso)
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+
+        // Cabeceras permitidas (estándar para JWT y peticiones web)
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
+
+        // Permitir credenciales (necesario a veces para ciertos navegadores/cookies)
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
