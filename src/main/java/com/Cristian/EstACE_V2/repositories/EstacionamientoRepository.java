@@ -26,5 +26,5 @@ public interface EstacionamientoRepository extends JpaRepository<Estacionamiento
             "(e.latitud = :latitud AND e.longitud = :longitud))")
     boolean existsDuplicadoParaEditar(Integer id, String provincia, String localidad, String direccion, Double latitud, Double longitud);
 
-    boolean existsByDueno_Legajo(Integer legajo);
+    boolean existsByDueno_Id(Integer legajo);
 }

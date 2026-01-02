@@ -19,7 +19,7 @@ public class Estacionamiento {
     // Relación con Dueño (fk: dueño_legajo)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dueño_legajo", nullable = false)
-    @JsonIgnore // 👈 AGREGA ESTA LÍNE
+    @JsonIgnore
     private Dueño dueno;
 
     @Column(name = "est_nombre", length = 500)
