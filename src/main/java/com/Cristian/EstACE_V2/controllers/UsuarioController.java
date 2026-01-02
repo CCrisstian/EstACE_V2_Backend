@@ -1,18 +1,17 @@
 package com.Cristian.EstACE_V2.controllers;
 
+import com.Cristian.EstACE_V2.config.JwtService;
 import com.Cristian.EstACE_V2.dtos.LoginRequest;
 import com.Cristian.EstACE_V2.dtos.UsuarioResponse;
 import com.Cristian.EstACE_V2.entities.Usuario;
-import com.Cristian.EstACE_V2.security.JwtService;
 import com.Cristian.EstACE_V2.services.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import com.Cristian.EstACE_V2.dtos.UsuarioUpdateRequest; // Importar
+import com.Cristian.EstACE_V2.dtos.UsuarioUpdateRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -31,7 +30,7 @@ public class UsuarioController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        // 1. Autenticamos con Spring Security (Lanzará excepción si falla)
+        // 1. Autenticamos con Spring Security
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getLegajo().toString(),
@@ -39,11 +38,12 @@ public class UsuarioController {
                 )
         );
 
-        // 2. Si pasa, buscamos el usuario para obtener sus datos
+        // 2. Buscamos el usuario completo
         Usuario usuario = usuarioService.buscarPorLegajo(loginRequest.getLegajo());
 
         // 3. Generamos el Token
-        String jwtToken = jwtService.generateToken(usuario.getUsername());
+        // CORRECCIÓN AQUÍ: Pasamos el objeto 'usuario' entero, no el string
+        String jwtToken = jwtService.generateToken(usuario);
 
         // 4. Preparamos la respuesta
         UsuarioResponse response = new UsuarioResponse();

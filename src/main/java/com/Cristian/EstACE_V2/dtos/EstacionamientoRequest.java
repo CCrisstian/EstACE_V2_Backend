@@ -1,10 +1,14 @@
 package com.Cristian.EstACE_V2.dtos;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class EstacionamientoRequest {
+
+    @NotNull(message = "El nombre del Estacionamiento es obligatorio")
     private String nombre;
+
     private String provincia;
     private String localidad;
     private String direccion;

@@ -1,5 +1,6 @@
 package com.Cristian.EstACE_V2.security;
 
+import com.Cristian.EstACE_V2.config.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -56,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userLegajo);
 
             // Validamos si el token es correcto para este usuario
-            if (jwtService.isTokenValid(jwt, userDetails.getUsername())) {
+            if (jwtService.isTokenValid(jwt, userDetails)) {
 
                 // Creamos la "tarjeta de acceso" oficial de Spring Security
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
