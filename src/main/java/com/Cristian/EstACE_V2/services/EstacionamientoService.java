@@ -37,6 +37,12 @@ public class EstacionamientoService {
         Dueño dueno = duenoRepository.findById(duenoLegajo)
                 .orElseThrow(() -> new RuntimeException("Dueño no encontrado (Legajo inválido)"));
 
+        // Verificar si ya tiene un Estacionamiento registrado
+        if (estacionamientoRepository.existsByDueno_Legajo(duenoLegajo)) {
+            // Este mensaje es el que verá el usuario en el Frontend
+            throw new IllegalArgumentException("Ya posees un estacionamiento registrado. No se permite crear más de uno.");
+        }
+
         // Validar Duplicados
         if (estacionamientoRepository.existsByProvinciaAndLocalidadAndDireccion(
                 request.getProvincia(), request.getLocalidad(), request.getDireccion()) ||
