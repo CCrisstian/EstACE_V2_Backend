@@ -13,4 +13,6 @@ public class PlayeroResponse {
     private String nombreEstacionamiento;
     private Integer estacionamientoId;
     private Boolean activo;
+
+    private String avatarUrl;
 }

@@ -22,4 +22,6 @@ public class UsuarioUpdateRequest {
 
     // Dato exclusivo (solo Dueño puede editar su propia contraseña)
     private String password;
+
+    private String avatarUrl;
 }

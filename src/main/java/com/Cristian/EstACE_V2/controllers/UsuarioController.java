@@ -23,14 +23,17 @@ public class UsuarioController {
     private UsuarioService usuarioService;
 
     @Autowired
-    private AuthenticationManager authenticationManager; // Verifica credenciales
+    private AuthenticationManager authenticationManager;
 
     @Autowired
-    private JwtService jwtService; // Crea el token
+    private JwtService jwtService;
+
+    // DTO interno para recibir solo la URL
+    record AvatarUpdateRequest(String avatarUrl) {}
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        // 1. Autenticamos con Spring Security
+        // 1. Autenticar
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getLegajo().toString(),
@@ -38,14 +41,13 @@ public class UsuarioController {
                 )
         );
 
-        // 2. Buscamos el usuario completo
+        // 2. Buscar usuario
         Usuario usuario = usuarioService.buscarPorLegajo(loginRequest.getLegajo());
 
-        // 3. Generamos el Token
-        // CORRECCIÓN AQUÍ: Pasamos el objeto 'usuario' entero, no el string
+        // 3. Generar Token
         String jwtToken = jwtService.generateToken(usuario);
 
-        // 4. Preparamos la respuesta
+        // 4. Preparar respuesta
         UsuarioResponse response = new UsuarioResponse();
         response.setLegajo(usuario.getUsuLegajo());
         response.setDni(usuario.getUsuDni());
@@ -54,28 +56,28 @@ public class UsuarioController {
         response.setTipo(usuario.getUsuTipo());
         response.setToken(jwtToken);
 
+        response.setAvatarUrl(usuario.getUsuAvatarUrl());
+
         return ResponseEntity.ok(response);
     }
 
     // GET: Ver mi propio perfil
     @GetMapping("/perfil")
     public ResponseEntity<?> verMiPerfil() {
-        // 1. Obtener el usuario autenticado del contexto de seguridad (del Token)
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String legajoString = auth.getName(); // En UserDetails el username es el legajo
+        String legajoString = auth.getName();
         Integer legajo = Integer.parseInt(legajoString);
 
-        // 2. Buscar datos
         Usuario usuario = usuarioService.buscarPorLegajo(legajo);
 
-        // 3. Mapear a Response (SIN PASSWORD)
         UsuarioResponse response = new UsuarioResponse();
         response.setLegajo(usuario.getUsuLegajo());
         response.setDni(usuario.getUsuDni());
         response.setNombre(usuario.getUsuNom());
         response.setApellido(usuario.getUsuAp());
         response.setTipo(usuario.getUsuTipo());
-        // response.setToken(...) -> No es necesario devolver token aquí, ya lo tiene.
+
+        response.setAvatarUrl(usuario.getUsuAvatarUrl());
 
         return ResponseEntity.ok(response);
     }
@@ -84,14 +86,11 @@ public class UsuarioController {
     @PutMapping("/perfil")
     public ResponseEntity<?> actualizarMiPerfil(@Valid @RequestBody UsuarioUpdateRequest request) {
         try {
-            // 1. Obtener ID del token (Nuevamente, por seguridad)
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             Integer legajo = Integer.parseInt(auth.getName());
 
-            // 2. Llamar al servicio
             Usuario usuarioActualizado = usuarioService.actualizarPerfil(legajo, request);
 
-            // 3. Responder con los datos nuevos
             UsuarioResponse response = new UsuarioResponse();
             response.setLegajo(usuarioActualizado.getUsuLegajo());
             response.setDni(usuarioActualizado.getUsuDni());
@@ -99,8 +98,21 @@ public class UsuarioController {
             response.setApellido(usuarioActualizado.getUsuAp());
             response.setTipo(usuarioActualizado.getUsuTipo());
 
+            response.setAvatarUrl(usuarioActualizado.getUsuAvatarUrl());
+
             return ResponseEntity.ok(response);
 
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PatchMapping("/{legajo}/avatar")
+    public ResponseEntity<?> actualizarAvatar(@PathVariable Integer legajo, @RequestBody AvatarUpdateRequest request) {
+        try {
+            Usuario usuarioActualizado = usuarioService.actualizarAvatar(legajo, request.avatarUrl());
+
+            return ResponseEntity.ok(usuarioActualizado);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

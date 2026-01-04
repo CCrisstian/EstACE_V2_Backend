@@ -142,6 +142,7 @@ public class PlayeroService {
                 .estacionamientoId(p.getEstacionamiento().getId())
                 .nombreEstacionamiento(p.getEstacionamiento().getNombre())
                 .activo(p.getActivo())
+                .avatarUrl(p.getUsuario().getUsuAvatarUrl())
                 .build();
     }
 }

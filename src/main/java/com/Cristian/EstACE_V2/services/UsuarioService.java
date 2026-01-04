@@ -91,4 +91,12 @@ public class UsuarioService {
 
         return usuarioRepository.save(usuario);
     }
+
+    public Usuario actualizarAvatar(Integer legajo, String urlAvatar) {
+        Usuario usuario = usuarioRepository.findById(legajo)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        usuario.setUsuAvatarUrl(urlAvatar);
+        return usuarioRepository.save(usuario);
+    }
 }

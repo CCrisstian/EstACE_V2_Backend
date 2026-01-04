@@ -75,4 +75,7 @@ public class Usuario implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    @Column(name = "usu_avatar_url")
+    private String usuAvatarUrl;
 }

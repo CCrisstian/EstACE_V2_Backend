@@ -10,4 +10,5 @@ public class UsuarioResponse {
     private String apellido;
     private String tipo;
     private String token;
+    private String avatarUrl;
 }
