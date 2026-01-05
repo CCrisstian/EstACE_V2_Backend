@@ -1,4 +1,4 @@
-package com.Cristian.EstACE_V2.security;
+package com.Cristian.EstACE_V2.config;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -6,6 +6,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -17,38 +18,25 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    // 1. INYECTAMOS LA CLAVE DESDE application.properties
+    // Inyectamos los valores desde application.properties
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
 
-    // (Opcional) También podemos inyectar el tiempo de expiración
     @Value("${application.security.jwt.expiration}")
     private long jwtExpiration;
 
-    public String generateToken(String username) {
-        return generateToken(new HashMap<>(), username);
-    }
+    // --- MÉTODOS DE EXTRACCIÓN ---
 
-    public String generateToken(Map<String, Object> extraClaims, String username) {
-        return Jwts.builder()
-                .setClaims(extraClaims)
-                .setSubject(username)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration)) // Usamos la variable inyectada
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
-                .compact();
+    public Integer extractLegajo(String token) {
+        String username = extractUsername(token);
+        return Integer.parseInt(username);
     }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public boolean isTokenValid(String token, String username) {
-        final String usernameDelToken = extractUsername(token);
-        return (usernameDelToken.equals(username)) && !isTokenExpired(token);
-    }
-
-    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
@@ -61,6 +49,13 @@ public class JwtService {
                 .getBody();
     }
 
+    // --- MÉTODOS DE VALIDACIÓN ---
+
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+    }
+
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
@@ -69,8 +64,24 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
+    // --- MÉTODOS DE GENERACIÓN ---
+
+    public String generateToken(UserDetails userDetails) {
+        return generateToken(new HashMap<>(), userDetails);
+    }
+
+    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+        return Jwts.builder()
+                .setClaims(extraClaims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration)) // Usamos la variable inyectada
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
     private Key getSignInKey() {
-        // Usamos la variable de instancia 'secretKey' en lugar de la constante estática
+        // Usamos la variable inyectada 'secretKey'
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
