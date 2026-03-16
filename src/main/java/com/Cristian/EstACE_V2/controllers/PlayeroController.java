@@ -3,6 +3,7 @@ package com.Cristian.EstACE_V2.controllers;
 import com.Cristian.EstACE_V2.dtos.PlayeroRequest;
 import com.Cristian.EstACE_V2.dtos.PlayeroResponse;
 import com.Cristian.EstACE_V2.services.PlayeroService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,12 +28,17 @@ public class PlayeroController {
     }
 
     @PostMapping
-    public ResponseEntity<PlayeroResponse> crearPlayero(@RequestBody PlayeroRequest request, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<PlayeroResponse> crearPlayero(
+            @Valid @RequestBody PlayeroRequest request,
+            @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok(playeroService.crearPlayero(request, token));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PlayeroResponse> editarPlayero(@PathVariable Integer id, @RequestBody PlayeroRequest request, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<PlayeroResponse> editarPlayero(
+            @PathVariable Integer id,
+            @Valid @RequestBody PlayeroRequest request,
+            @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok(playeroService.editarPlayero(id, request, token));
     }
 }

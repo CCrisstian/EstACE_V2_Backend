@@ -76,6 +76,15 @@ public class Usuario implements UserDetails {
         return true;
     }
 
-    @Column(name = "usu_avatar_url")
+    @Column(name = "usu_avatar_url", length = 500)
     private String usuAvatarUrl;
+
+    @Column(name = "usu_email", unique = true, length = 255)
+    private String usuEmail;
+
+    @Column(name = "usu_telefono", length = 50)
+    private String usuTelefono;
+
+    @Column(name = "usu_direccion", length = 255)
+    private String usuDireccion;
 }

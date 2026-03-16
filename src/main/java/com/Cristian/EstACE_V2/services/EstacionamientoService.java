@@ -5,13 +5,16 @@ import com.Cristian.EstACE_V2.entities.Dueño;
 import com.Cristian.EstACE_V2.entities.Estacionamiento;
 import com.Cristian.EstACE_V2.repositories.DueñoRepository;
 import com.Cristian.EstACE_V2.repositories.EstacionamientoRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class EstacionamientoService {
 
     @Autowired
@@ -28,6 +31,15 @@ public class EstacionamientoService {
     public Estacionamiento obtenerPorId(Integer id) {
         return estacionamientoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Estacionamiento no encontrado"));
+    }
+
+    public List<Estacionamiento> obtenerActivosPorDueño(Integer dueñoLegajo) {
+        List<Estacionamiento> todos = estacionamientoRepository.findByDuenoId(dueñoLegajo);
+
+        return todos.stream()
+        // Boolean.TRUE.equals(): si es null da false, si es false da false, si es true da true
+                .filter(est -> Boolean.TRUE.equals(est.getDisponibilidad()))
+                .collect(Collectors.toList());
     }
 
     // --- 2. CREAR (Create) ---

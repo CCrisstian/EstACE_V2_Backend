@@ -10,6 +10,13 @@ public class PlayeroResponse {
     private Integer dni;
     private String nombre;
     private String apellido;
+
+    // --- CAMPOS DE CONTACTO ---
+    private String email;
+    private String telefono;
+    private String direccion;
+    // ---------------------------------
+
     private String nombreEstacionamiento;
     private Integer estacionamientoId;
     private Boolean activo;
