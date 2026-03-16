@@ -34,6 +34,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Endpoints públicos
                         .requestMatchers("/api/usuarios/login", "/api/usuarios/registrar").permitAll()
+                        .requestMatchers("/api/usuarios/forgot-password", "/api/usuarios/reset-password").permitAll()
+
+                        // Permitir peticiones CORS (OPTIONS) y ver los Errores Reales
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/error").permitAll()
+
                         // El resto requiere autenticación
                         .anyRequest().authenticated()
                 )
@@ -50,7 +56,7 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 🔥 CAMBIO IMPORTANTE: Permitir TODO (*) usando patrones
+        // Permitir TODO (*) usando patrones
         // Esto soluciona los problemas de "localhost" vs "127.0.0.1" y puertos.
         configuration.setAllowedOriginPatterns(List.of("*"));
 

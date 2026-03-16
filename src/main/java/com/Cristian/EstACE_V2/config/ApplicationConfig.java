@@ -22,13 +22,15 @@ public class ApplicationConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
-            try {
-                // Convertimos el username (String) a Integer (Legajo)
-                Integer legajo = Integer.parseInt(username);
-                return repository.findByUsuLegajo(legajo)
-                        .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
-            } catch (NumberFormatException e) {
-                throw new UsernameNotFoundException("Formato de legajo inválido");
+            // Si el "username" que llega tiene una '@', sabemos que viene del Login (Email)
+            if (username.contains("@")) {
+                return repository.findByUsuEmail(username)
+                        .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con correo: " + username));
+            }
+            // Si no tiene '@', sabemos que viene del Token JWT (Legajo)
+            else {
+                return repository.findByUsuLegajo(Integer.parseInt(username))
+                        .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con legajo: " + username));
             }
         };
     }

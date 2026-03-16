@@ -28,6 +28,7 @@ public class PlayeroService {
     private final JwtService jwtService;
 
     // --- LISTAR ---
+    @Transactional(readOnly = true)
     public List<PlayeroResponse> obtenerMisPlayeros(String token) {
         Integer legajoDueño = jwtService.extractLegajo(token.substring(7));
 
@@ -46,7 +47,7 @@ public class PlayeroService {
             throw new IllegalArgumentException("Ya existe un usuario con ese DNI.");
         }
 
-        // 2. Validar Estacionamiento y pertenencia al dueño
+        // 2. Validar Estacionamiento y Contraseña
         Estacionamiento estacionamiento = estacionamientoRepository.findById(request.getEstacionamientoId())
                 .orElseThrow(() -> new RuntimeException("Estacionamiento no encontrado"));
 
@@ -54,13 +55,21 @@ public class PlayeroService {
             throw new RuntimeException("No tienes permiso para asignar playeros a este estacionamiento.");
         }
 
+        if (request.getPassword() == null || request.getPassword().isBlank()) {
+            throw new RuntimeException("La contraseña es obligatoria para registrar un nuevo playero.");
+        }
+
         // 3. Crear Usuario (Base)
         Usuario nuevoUsuario = Usuario.builder()
                 .usuDni(request.getDni())
                 .usuNom(request.getNombre())
                 .usuAp(request.getApellido())
+                .usuEmail(request.getEmail())
+                .usuTelefono(request.getTelefono())
+                .usuDireccion(request.getDireccion())
                 .usuPass(passwordEncoder.encode(request.getPassword())) // Encriptar pass
                 .usuTipo("Playero")
+                .usuAvatarUrl(request.getAvatarUrl())
                 .build();
 
         // Guardamos usuario para generar el Legajo (ID)
@@ -96,12 +105,18 @@ public class PlayeroService {
         usuario.setUsuDni(request.getDni());
         usuario.setUsuNom(request.getNombre());
         usuario.setUsuAp(request.getApellido());
+        usuario.setUsuEmail(request.getEmail());
+        usuario.setUsuTelefono(request.getTelefono());
+        usuario.setUsuDireccion(request.getDireccion());
+
+        if (request.getAvatarUrl() != null) {
+            usuario.setUsuAvatarUrl(request.getAvatarUrl());
+        }
 
         // Solo actualizamos contraseña si viene algo en el request
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
             usuario.setUsuPass(passwordEncoder.encode(request.getPassword()));
         }
-
         usuarioRepository.save(usuario);
 
         // Actualizar datos de Playero (Cambio de sucursal o estado)
@@ -126,8 +141,9 @@ public class PlayeroService {
     }
 
     // --- OBTENER POR ID ---
+    @Transactional(readOnly = true)
     public PlayeroResponse obtenerPorId(Integer id, String token) {
-        // ... validación de dueño similar a editar ...
+        // Validación para editar
         Playero p = playeroRepository.findById(id).orElseThrow();
         return mapToResponse(p);
     }
@@ -139,6 +155,9 @@ public class PlayeroService {
                 .dni(p.getUsuario().getUsuDni())
                 .nombre(p.getUsuario().getUsuNom())
                 .apellido(p.getUsuario().getUsuAp())
+                .email(p.getUsuario().getUsuEmail())
+                .telefono(p.getUsuario().getUsuTelefono())
+                .direccion(p.getUsuario().getUsuDireccion())
                 .estacionamientoId(p.getEstacionamiento().getId())
                 .nombreEstacionamiento(p.getEstacionamiento().getNombre())
                 .activo(p.getActivo())

@@ -21,7 +21,7 @@ public class EstacionamientoController {
     // Helper para obtener el ID del usuario autenticado
     private Integer getUsuarioAutenticadoId() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return Integer.parseInt(username); // En tu UserDetails, el username es el legajo
+        return Integer.parseInt(username); // El username es el legajo
     }
 
     // --- 1. LISTAR MIS ESTACIONAMIENTOS ---
@@ -32,8 +32,14 @@ public class EstacionamientoController {
         return ResponseEntity.ok(estacionamientoService.obtenerPorDueño(id));
     }
 
+    // --- LISTAR SOLO ACTIVOS (Para select/dropdowns) ---
+    @GetMapping("/activos")
+    public ResponseEntity<List<Estacionamiento>> listarMisEstacionamientosActivos() {
+        Integer id = getUsuarioAutenticadoId();
+        return ResponseEntity.ok(estacionamientoService.obtenerActivosPorDueño(id));
+    }
+
     // --- 2. OBTENER UNO POR ID ---
-    // Endpoint: GET /api/estacionamientos/{id}
     @GetMapping("/{id}")
     public ResponseEntity<Estacionamiento> obtenerPorId(@PathVariable Integer id) {
         return ResponseEntity.ok(estacionamientoService.obtenerPorId(id));
@@ -53,7 +59,6 @@ public class EstacionamientoController {
     }
 
     // --- 4. EDITAR EXISTENTE ---
-    // Endpoint: PUT /api/estacionamientos/{id}
     @PutMapping("/{id}")
     public ResponseEntity<?> editar(@PathVariable Integer id, @RequestBody EstacionamientoRequest request) {
         try {

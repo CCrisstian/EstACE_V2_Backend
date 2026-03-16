@@ -11,6 +11,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 
     Optional<Usuario> findByUsuLegajo(Integer usuLegajo);
 
+    Optional<Usuario> findByUsuEmail(String usuEmail);
+
     // Buscar si existe un DNI, pero EXCLUYENDO un legajo específico.
     // SQL equivalente: SELECT * FROM usuarios WHERE usu_dni = ? AND usu_legajo != ?
     boolean existsByUsuDniAndUsuLegajoNot(Integer dni, Integer legajo);
