@@ -1,5 +1,5 @@
-# 1. Usamos Java 22 para que coincida con tu PC
-FROM eclipse-temurin:22-jdk
+# 1. Imagen Base, exactamente la misma versión de Java que tiengo instalada
+FROM amazoncorretto:22
 
 # 2. Directorio de trabajo
 WORKDIR /app

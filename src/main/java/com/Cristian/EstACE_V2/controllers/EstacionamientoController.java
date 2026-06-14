@@ -32,6 +32,7 @@ public class EstacionamientoController {
         return ResponseEntity.ok(estacionamientoService.obtenerPorDueño(id));
     }
 
+
     // --- LISTAR SOLO ACTIVOS (Para select/dropdowns) ---
     @GetMapping("/activos")
     public ResponseEntity<List<Estacionamiento>> listarMisEstacionamientosActivos() {

@@ -33,7 +33,7 @@ public class UsuarioController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
 
-        // 1. Autenticar usando el EMAIL
+        // 1. Autenticar usando el EMAIL y PASSWORD
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getEmail(),

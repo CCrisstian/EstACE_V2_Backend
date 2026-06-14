@@ -43,7 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 2. Extraemos el token puro (quitando la palabra "Bearer ")
+        // 2. Extraemos el token puro (quitando la palabra "Bearer"
         jwt = authHeader.substring(7);
 
         // 3. Extraemos el Legajo (username) del token

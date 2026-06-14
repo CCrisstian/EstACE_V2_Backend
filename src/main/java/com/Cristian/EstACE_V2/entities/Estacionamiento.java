@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "estacionamiento", schema = "public")
 @Getter @Setter
@@ -70,4 +73,11 @@ public class Estacionamiento {
     @Column(name = "est_cantidad_votos", nullable = false)
     @Builder.Default
     private Integer cantidadVotos = 0;
+
+    // Relación One-To-Many hacia la tabla intermedia.
+    // CascadeType.ALL y orphanRemoval = true nos permitirán agregar y borrar métodos de pago
+    // simplemente manipulando esta lista en el servicio.
+    @OneToMany(mappedBy = "estacionamiento", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<AceptaMetodoDePago> metodosDePagoAceptados = new ArrayList<>();
 }
