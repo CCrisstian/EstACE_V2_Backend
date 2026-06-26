@@ -77,6 +77,7 @@ public class Estacionamiento {
     // Relación One-To-Many hacia la tabla intermedia.
     // CascadeType.ALL y orphanRemoval = true nos permitirán agregar y borrar métodos de pago
     // simplemente manipulando esta lista en el servicio.
+    @JsonIgnore
     @OneToMany(mappedBy = "estacionamiento", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<AceptaMetodoDePago> metodosDePagoAceptados = new ArrayList<>();
